@@ -6,7 +6,7 @@
 /*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 17:07:03 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/14 12:50:35 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/14 16:25:40 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,18 @@
 
 # define PIPEX_H
 
-#include <unistd.h>    // for open, close, read, write, access, dup, dup2, execve, fork, pipe, unlink
-#include <stdlib.h>    // for malloc, free, exit
-#include <string.h>    // for strerror
-#include <stdio.h>     // for perror
-#include <sys/wait.h>  // for wait, waitpid
-#include <fcntl.h>
-#include <errno.h>
+# include <unistd.h>
+# include <stdlib.h>
+# include <string.h>
+# include <stdio.h>
+# include <sys/wait.h>
+# include <fcntl.h>
+# include <errno.h>
+# include "libs42/libs42.h"
 
-
-#include "libs42/libs42.h"
-
+char	*get_path(char **envp);
 int		is_valid_cmd(char *cmd, char *path);
-char	*search_path(char **envp);
 char	*get_cmd_path(char *cmd, char *path);
+void	handle_error_exit(int errnum, int fd, char **cmd_args, char *cmd_path);
 
 #endif

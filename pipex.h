@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: niklasburchhardt <niklasburchhardt@stud    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 17:07:03 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/11 10:54:32 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/13 21:18:12 by niklasburch      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,7 @@ typedef struct s_command
 	char	**cmd; //cmd[0] = cmd, cmd[1] = arg1, ...
 }		t_command;
 
-void	handle_error(int errnum);
-void	check_parse_input(char **argv, char **envp);
-int		check_file_permission(char *file, int access_type);
+int		is_valid_cmd(char *cmd, char *path);
 char	*search_path(char **envp);
 
 #endif

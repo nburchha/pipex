@@ -2,7 +2,7 @@ NAME = pipex
 CC = cc
 CFLAGS = -Wall -Werror -Wextra #-fsanitize=address -g
 LIB = ./libs42/libs42.a
-SRC_FILES = main.c check_parse_input.c error.c
+SRC_FILES = main.c parse_input.c
 OBJS = $(addprefix .obj/, $(SRC_FILES:.c=.o))
 
 all: $(NAME)

@@ -6,7 +6,7 @@
 /*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 18:44:19 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/14 16:25:47 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/14 18:49:53 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,26 +15,28 @@
 char	*get_cmd_path(char *cmd, char *path)
 {
 	char	**dir;
-	char	fullpath[1024];
-	char	**split_cmd;
+	char	c_path[1024];
+	char	**splt_cmd;
 	int		i;
 
-	if (!path)
-		return (NULL);
+	splt_cmd = ft_split(cmd, ' ');
+	if (access(splt_cmd[0], X_OK) == 0)
+	{
+		path = ft_strdup(splt_cmd[0]);
+		return (free_split(splt_cmd), path);
+	}
 	dir = ft_split(path, ':');
-	split_cmd = ft_split(cmd, ' ');
 	i = -1;
 	while (dir && dir[++i])
 	{
-		ft_strlcpy(fullpath, dir[i], ft_strlen(dir[i]) + 1);
-		ft_strlcat(fullpath, "/", ft_strlen(fullpath) + 2);
-		ft_strlcat(fullpath, split_cmd[0], ft_strlen(fullpath) + \
-					ft_strlen(split_cmd[0]) + 1);
-		if (access(fullpath, X_OK) == 0)
-			return (free_split(dir), free_split(split_cmd), \
-					ft_strdup(fullpath));
+		ft_strlcpy(c_path, dir[i], ft_strlen(dir[i]) + 1);
+		ft_strlcat(c_path, "/", ft_strlen(c_path) + 2);
+		ft_strlcat(c_path, splt_cmd[0], ft_strlen(c_path) + \
+					ft_strlen(splt_cmd[0]) + 1);
+		if (access(c_path, X_OK) == 0)
+			return (free_split(dir), free_split(splt_cmd), ft_strdup(c_path));
 	}
-	free_split(split_cmd);
+	free_split(splt_cmd);
 	free_split(dir);
 	return (NULL);
 }
@@ -42,32 +44,32 @@ char	*get_cmd_path(char *cmd, char *path)
 int	is_valid_cmd(char *cmd, char *path)
 {
 	char	**dir;
-	char	fullpath[1024];
+	char	c_path[1024];
 	char	**split_cmd;
 	int		i;
 
-	if (!path)
+	if (!path || !cmd)
 		return (0);
-	dir = ft_split(path, ':');
 	split_cmd = ft_split(cmd, ' ');
+	if (access(split_cmd[0], X_OK) == 0)
+		return (free_split(split_cmd), 1);
+	dir = ft_split(path, ':');
 	i = -1;
 	while (dir && dir[++i])
 	{
-		ft_strlcpy(fullpath, dir[i], ft_strlen(dir[i]) + 1);
-		ft_strlcat(fullpath, "/", ft_strlen(fullpath) + 2);
-		ft_strlcat(fullpath, split_cmd[0], ft_strlen(fullpath) + \
+		ft_strlcpy(c_path, dir[i], ft_strlen(dir[i]) + 1);
+		ft_strlcat(c_path, "/", ft_strlen(c_path) + 2);
+		ft_strlcat(c_path, split_cmd[0], ft_strlen(c_path) + \
 					ft_strlen(split_cmd[0]) + 1);
-		if (access(fullpath, X_OK) == 0)
+		if (access(c_path, X_OK) == 0)
 			return (free_split(dir), free_split(split_cmd), 1);
-		if (errno == 2)
-			errno = 0;
 	}
 	free_split(split_cmd);
 	free_split(dir);
 	return (0);
 }
 
-void	handle_error_exit(int errnum, int fd, char **cmd_args, char *cmd_path)
+void	handle_error_exit(int errnum, int fd, char **cmd_args, char *c_path)
 {
 	char	*msg[5];
 
@@ -78,7 +80,7 @@ void	handle_error_exit(int errnum, int fd, char **cmd_args, char *cmd_path)
 	if (fd > 2)
 		close(fd);
 	free_split(cmd_args);
-	free(cmd_path);
+	free(c_path);
 	exit(1);
 }
 

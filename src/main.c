@@ -6,19 +6,11 @@
 /*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 18:44:26 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/14 16:24:07 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/14 18:45:49 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
-
-// void check_fds(int start, int end) {
-//     for (int fd = start; fd < end; fd++) {
-//         if (fcntl(fd, F_GETFD) != -1 || errno != EBADF) {
-//             printf("File descriptor %d is open\n", fd);
-//         }
-//     }
-// }
 
 int	check_input(int argc, char **argv, int *fd)
 {
@@ -102,7 +94,7 @@ int	main(int argc, char **argv, char **envp)
 	if (!path)
 		return (perror("Failed to get path"), 1);
 	i = 1;
-	while (is_valid_cmd(argv[++i], path) == 1)
+	while (argv[++i] && is_valid_cmd(argv[i], path) == 1)
 	{
 		cmd_args = ft_split(argv[i], ' ');
 		cmd_path = get_cmd_path(cmd_args[0], path);

@@ -6,67 +6,19 @@
 /*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 18:44:26 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/14 12:13:07 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/14 13:10:25 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
 
-// void	init_cmd(char **argv, char **envp, t_command *command)
-// {
-// 	char	**dir;
-// 	char	*path;
-// 	char	fullpath[1024];
-// 	char	**split_cmd;
-// 	int		i;
-
-// 	command->path = NULL;
-// 	i = -1;
-// 	path = search_path(envp);
-// 	if (!path)
-// 		handle_error(2);
-// 	dir = ft_split(path, ':');
-// 	command->cmd = ft_split(argv, ' ');
-// 	i = -1;
-// 	while (dir && dir[++i])
-// 	{
-// 		ft_strlcpy(fullpath, dir[i], ft_strlen(dir[i]));
-// 		ft_strlcat(fullpath, split_cmd[0], ft_strlen(fullpath) + ft_strlen(split_cmd[0]));
-// 		if (access(path, X_OK) == 0)
-// 			return (free_split(dir), 1);
-// 	}
-// 	free_split(split_cmd);
-// 	free_split(dir);
-// 	return (0);
-// }
-
-// void	exec_cmd_fd(char **argv, int fd, char **envp)
-// {
-// 	pid_t		pid;
-// 	t_command	cmd;
-
-// 	init_cmd(argv, envp, &cmd);
-// 	pid = fork();
-// 	if (pid == -1)
-// 		return (perror("Failed to fork"), 1);
-// 	if (pid == 0)
-// 	{
-// 		//child process
-// 		if (dup2(fd, STDIN_FILENO) == -1)
-// 			return (perror("Failed to redirect standard input"), 1);
-// 		execve()
-// 	}
-// }
-
-// int main(int argc, char **argv, char **envp)
-// {
-// 	// if (argc > 5 || !envp || !*envp)
-// 	// 	return (1);
-// 	if (argc == 0)
-// 		return (1);
-// 	ft_printf("validcmd: %d\n", is_valid_cmd(argv[1], search_path(envp)));
-// 	return 0;
-// }
+void check_fds(int start, int end) {
+    for (int fd = start; fd < end; fd++) {
+        if (fcntl(fd, F_GETFD) != -1 || errno != EBADF) {
+            printf("File descriptor %d is open\n", fd);
+        }
+    }
+}
 
 int	exec_cmd_redirect_out(int input_fd, char **cmd_args, char *cmd_path, char **envp)
 {
@@ -92,6 +44,7 @@ int	exec_cmd_redirect_out(int input_fd, char **cmd_args, char *cmd_path, char **
 		exit(1); // Exit if execve fails
 	}
 	close(fd[1]);
+	close(input_fd);
 	return (fd[0]);
 }
 
@@ -106,12 +59,17 @@ char	*get_path(char **envp)
 	return NULL;
 }
 
-void check_fds(int start, int end) {
-    for (int fd = start; fd < end; fd++) {
-        if (fcntl(fd, F_GETFD) != -1 || errno != EBADF) {
-            printf("File descriptor %d is open\n", fd);
-        }
-    }
+int	check_input(int argc, char **argv)
+{
+	if (argc < 5)
+		return (perror("Not enough arguments"), 1);
+	if (access(argv[1], F_OK) == -1)
+		return (perror("Input file does not exist"), 1);
+	if (access(argv[1], R_OK) == -1)
+		return (perror("Input file is not readable"), 1);
+	if (access(argv[argc - 1], W_OK) == -1)
+		return (perror("Output file is not writable"), 1);
+	return (0);
 }
 
 int main(int argc, char **argv, char **envp)
@@ -123,7 +81,7 @@ int main(int argc, char **argv, char **envp)
 	char	**cmd_args;
 	char	*cmd_path;
 
-	if (argc < 5 || !envp || !*envp)
+	if (check_input(argc, argv) == 1)
 		return (1);
 	path = get_path(envp);
 	if (!path)
@@ -142,28 +100,27 @@ int main(int argc, char **argv, char **envp)
 		free(cmd_path);
 		free_split(cmd_args);
 	}
-		// Final process to read from the pipe and write to file2
-		pid = fork();
-		if (pid == 0)
-		{
-			// Child process
-			if (dup2(fd, STDIN_FILENO) == -1)
-				return (perror("Failed to redirect standard input"), 1);
-			close(fd);
-
-			int file_fd = open(argv[i], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			if (file_fd == -1)
-				return (perror("Failed to open file2"), 1);
-
-			if (dup2(file_fd, STDOUT_FILENO) == -1)
-				return (perror("Failed to redirect standard output"), 1);
-			close(file_fd);
-
-			execve("/bin/cat", (char *[]){"cat", NULL}, envp);
-			exit(1); // Exit if execve fails
-		}
-		close(fd);	// Close the read end of the pipe in parent
-		wait(NULL); // Wait for the child process to finish
-		check_fds(0, 1024);
-		return (0);
+	//check if there is only one argument left, if not return error
+	if (i != argc - 1)
+		return (perror("Invalid arguments"), close(fd), 1);
+	// Final process to read from the pipe and write to file2
+	pid = fork();
+	if (pid == 0)
+	{
+		// Child process
+		if (dup2(fd, STDIN_FILENO) == -1)
+			return (perror("Failed to redirect standard input"), close(fd), 1);
+		close(fd);
+		int file_fd = open(argv[i], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (file_fd == -1)
+			return (perror("Failed to open output file"), 1);
+		if (dup2(file_fd, STDOUT_FILENO) == -1)
+			return (perror("Failed to redirect standard output"), close(file_fd), 1);
+		close(file_fd);
+		execve("/bin/cat", (char *[]){"cat", NULL}, envp);
+		exit(1); // Exit if execve fails
+	}
+	close(fd);	// Close the read end of the pipe in parent
+	wait(NULL); // Wait for the child process to finish
+	return (0);
 	}

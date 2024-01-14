@@ -6,7 +6,7 @@
 /*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 17:07:03 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/14 11:14:29 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/14 12:50:35 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,8 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "libs42/libs42.h"
 
-typedef struct s_command
-{
-	char	*path; //path to cmd binary file
-	char	**cmd; //cmd[0] = cmd, cmd[1] = arg1, ...
-}		t_command;
+#include "libs42/libs42.h"
 
 int		is_valid_cmd(char *cmd, char *path);
 char	*search_path(char **envp);

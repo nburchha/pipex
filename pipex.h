@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: niklasburchhardt <niklasburchhardt@stud    +#+  +:+       +#+        */
+/*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 17:07:03 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/13 21:18:12 by niklasburch      ###   ########.fr       */
+/*   Updated: 2024/01/14 11:14:29 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,6 @@ typedef struct s_command
 
 int		is_valid_cmd(char *cmd, char *path);
 char	*search_path(char **envp);
+char	*get_cmd_path(char *cmd, char *path);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 18:44:26 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/14 13:10:25 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/14 14:40:08 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,14 +67,40 @@ int	check_input(int argc, char **argv)
 		return (perror("Input file does not exist"), 1);
 	if (access(argv[1], R_OK) == -1)
 		return (perror("Input file is not readable"), 1);
-	if (access(argv[argc - 1], W_OK) == -1)
-		return (perror("Output file is not writable"), 1);
+	// if (access(argv[argc - 1], W_OK) == -1)
+	// 	return (perror("Output file is not writable"), 1);
+	return (0);
+}
+
+int	last_step(char *outfile, int fd, char **envp)
+{
+	pid_t	pid;
+	int		file_fd;
+	
+	// Final process to read from the pipe and write to file2
+	pid = fork();
+	if (pid == 0)
+	{
+		// Child process
+		if (dup2(fd, STDIN_FILENO) == -1)
+			return (perror("Failed to redirect standard input"), close(fd), 1);
+		close(fd);
+		file_fd = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (file_fd == -1)
+			return (perror("Failed to open output file"), 1);
+		if (dup2(file_fd, STDOUT_FILENO) == -1)
+			return (perror("Failed to redirect standard output"), close(file_fd), 1);
+		close(file_fd);
+		execve("/bin/cat", (char *[]){"cat", NULL}, envp);
+		exit(1); // Exit if execve fails
+	}
+	close(fd);	// Close the read end of the pipe in parent
+	wait(NULL); // Wait for the child process to finish
 	return (0);
 }
 
 int main(int argc, char **argv, char **envp)
 {
-	pid_t	pid;
 	int		fd;
 	int		i;
 	char	*path;
@@ -86,11 +112,9 @@ int main(int argc, char **argv, char **envp)
 	path = get_path(envp);
 	if (!path)
 		return (perror("Failed to get path"), 1);
-	// open file and redirect output to pipe
 	fd = open(argv[1], O_RDONLY);
 	if (fd == -1)
 		return (perror("Failed to open file"), 1);
-	// execute commands and redirect output to pipe
 	i = 1;
 	while (is_valid_cmd(argv[++i], path) == 1)
 	{
@@ -100,27 +124,9 @@ int main(int argc, char **argv, char **envp)
 		free(cmd_path);
 		free_split(cmd_args);
 	}
-	//check if there is only one argument left, if not return error
 	if (i != argc - 1)
 		return (perror("Invalid arguments"), close(fd), 1);
-	// Final process to read from the pipe and write to file2
-	pid = fork();
-	if (pid == 0)
-	{
-		// Child process
-		if (dup2(fd, STDIN_FILENO) == -1)
-			return (perror("Failed to redirect standard input"), close(fd), 1);
-		close(fd);
-		int file_fd = open(argv[i], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		if (file_fd == -1)
-			return (perror("Failed to open output file"), 1);
-		if (dup2(file_fd, STDOUT_FILENO) == -1)
-			return (perror("Failed to redirect standard output"), close(file_fd), 1);
-		close(file_fd);
-		execve("/bin/cat", (char *[]){"cat", NULL}, envp);
-		exit(1); // Exit if execve fails
-	}
-	close(fd);	// Close the read end of the pipe in parent
-	wait(NULL); // Wait for the child process to finish
+	if (last_step(argv[i], fd, envp) == 1)
+		return (1);
 	return (0);
 	}

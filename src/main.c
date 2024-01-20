@@ -3,24 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: niklasburchhardt <niklasburchhardt@stud    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 18:44:26 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/19 00:30:36 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/20 23:20:53 by niklasburch      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
 
-void print_file_contents(int fd) {
-    char *line;
+// void print_file_contents(int fd) {
+//     char *line;
 
-    do {
-        line = get_next_line(fd);
-		ft_printf("%s", line);
-		free(line);
-    } while (line);
-}
+//     do {
+//         line = get_next_line(fd);
+// 		ft_printf("%s", line);
+// 		free(line);
+//     } while (line);
+// }
 
 int	here_doc(char *limiter)
 {
@@ -34,7 +34,7 @@ int	here_doc(char *limiter)
 		line = get_next_line(0);
 		if (!line)
 			break ;
-		if (ft_strncmp(line, limiter, ft_strlen(limiter)) == 0)
+		if (ft_strncmp(line, limiter, ft_strlen(line) - 1) == 0)
 		{
 			free(line);
 			break ;
@@ -43,7 +43,6 @@ int	here_doc(char *limiter)
 		free(line);
 	}
 	close(fd[1]);
-	print_file_contents(fd[0]);
 	return (fd[0]);
 }
 
@@ -145,8 +144,6 @@ int	main(int argc, char **argv, char **envp)
 		free_split(cmd_args);
 	}
 	if (i != argc - 1)
-		return (ft_printf("i:%d\nargc - 1:%d", i, argc - 1), perror("Invalid arguments"), close(fd), 1);
-	if (redirect_execute_cat(argv[i], fd, envp) == 1)
-		return (1);
+		return (perror("Invalid arguments"), close(fd), 1);
 	return (0);
 }

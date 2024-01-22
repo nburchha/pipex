@@ -3,14 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: niklasburchhardt <niklasburchhardt@stud    +#+  +:+       +#+        */
+/*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 18:44:26 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/20 23:20:53 by niklasburch      ###   ########.fr       */
+/*   Updated: 2024/01/22 18:18:40 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
+
+// void check_file_descriptors() {
+// 	for (int fd = 3; fd < 1024; fd++) {  // typical range for file descriptors
+// 		if (fcntl(fd, F_GETFD) != -1) {
+// 			printf("File descriptor %d is open\n", fd);
+// 		}
+// 	}
+// 	printf("Done checking file descriptors\n");
+// }
 
 // void print_file_contents(int fd) {
 //     char *line;
@@ -143,7 +152,7 @@ int	main(int argc, char **argv, char **envp)
 		free(cmd_path);
 		free_split(cmd_args);
 	}
-	if (i != argc - 1)
-		return (perror("Invalid arguments"), close(fd), 1);
-	return (0);
+	if (i == argc - 1)
+		return (redirect_execute_cat(argv[argc - 1], fd, envp), 0);
+	return (1);
 }

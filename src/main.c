@@ -6,30 +6,11 @@
 /*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 18:44:26 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/22 18:18:40 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/23 16:33:18 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
-
-// void check_file_descriptors() {
-// 	for (int fd = 3; fd < 1024; fd++) {  // typical range for file descriptors
-// 		if (fcntl(fd, F_GETFD) != -1) {
-// 			printf("File descriptor %d is open\n", fd);
-// 		}
-// 	}
-// 	printf("Done checking file descriptors\n");
-// }
-
-// void print_file_contents(int fd) {
-//     char *line;
-
-//     do {
-//         line = get_next_line(fd);
-// 		ft_printf("%s", line);
-// 		free(line);
-//     } while (line);
-// }
 
 int	here_doc(char *limiter)
 {
@@ -55,13 +36,14 @@ int	here_doc(char *limiter)
 	return (fd[0]);
 }
 
-int	check_input(int argc, char **argv, int *fd)
+int	check_input(int argc, char **argv, int *fd, int *i)
 {
 	if (argc < 5)
 		return (perror("Not enough arguments"), 1);
 	if (ft_strncmp(argv[1], "here_doc", 8) == 0)
 	{
 		*fd = here_doc(argv[2]);
+		*i = 2;
 		return (0);
 	}
 	*fd = open(argv[1], O_RDONLY);
@@ -95,7 +77,6 @@ int	exec_cmd_redirect_out(int input_fd, char **cmd_args, \
 			handle_error_exit(0, input_fd, cmd_args, cmd_path);
 		close(fd[1]);
 		execve(cmd_path, cmd_args, envp);
-		exit(1);
 	}
 	close(fd[1]);
 	close(input_fd);
@@ -121,6 +102,7 @@ int	redirect_execute_cat(char *outfile, int fd, char **envp)
 					close(file_fd), 1);
 		close(file_fd);
 		execve("/bin/cat", (char *[]){"cat", NULL}, envp);
+		perror("Failed to execute cat");
 		exit(1);
 	}
 	close(fd);
@@ -136,16 +118,16 @@ int	main(int argc, char **argv, char **envp)
 	char	**cmd_args;
 	char	*cmd_path;
 
-	if (check_input(argc, argv, &fd) == 1)
+	i = 1;
+	if (check_input(argc, argv, &fd, &i) == 1)
 		return (1);
 	path = get_path(envp);
 	if (!path)
 		return (perror("Failed to get path"), 1);
-	i = 1;
-	if (ft_strncmp(argv[1], "here_doc", 8) == 0)
-		i = 2;
-	while (argv[++i] && is_valid_cmd(argv[i], path) == 1)
+	while (argv[++i] && argv[i + 1])
 	{
+		if (is_valid_cmd(argv[i], path, fd) == 0)
+			continue ;
 		cmd_args = ft_split(argv[i], ' ');
 		cmd_path = get_cmd_path(cmd_args[0], path);
 		fd = exec_cmd_redirect_out(fd, cmd_args, cmd_path, envp);

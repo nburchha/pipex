@@ -6,7 +6,7 @@
 /*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 18:44:19 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/14 18:49:53 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/23 16:26:55 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,22 @@ char	*get_cmd_path(char *cmd, char *path)
 	}
 	free_split(splt_cmd);
 	free_split(dir);
-	return (NULL);
+	return (perror("Command not found"), NULL);
 }
 
-int	is_valid_cmd(char *cmd, char *path)
+void	empty_pipe(int fd)
+{
+	char	*buffer[1024];
+	int		i;
+
+	i = 1;
+	while (i > 0)
+	{
+		i = read(fd, buffer, 1024);
+	}
+}
+
+int	is_valid_cmd(char *cmd, char *path, int fd)
 {
 	char	**dir;
 	char	c_path[1024];
@@ -66,7 +78,8 @@ int	is_valid_cmd(char *cmd, char *path)
 	}
 	free_split(split_cmd);
 	free_split(dir);
-	return (0);
+	empty_pipe(fd);
+	return (perror("Command not found"), 0);
 }
 
 void	handle_error_exit(int errnum, int fd, char **cmd_args, char *c_path)

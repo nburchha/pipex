@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parse_input.c                                      :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 18:44:19 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/23 16:26:55 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/27 13:44:24 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ char	*get_cmd_path(char *cmd, char *path)
 	}
 	free_split(splt_cmd);
 	free_split(dir);
-	return (perror("Command not found"), NULL);
+	return (perror("No such file or directory"), NULL);
 }
 
 void	empty_pipe(int fd)
@@ -60,8 +60,6 @@ int	is_valid_cmd(char *cmd, char *path, int fd)
 	char	**split_cmd;
 	int		i;
 
-	if (!path || !cmd)
-		return (0);
 	split_cmd = ft_split(cmd, ' ');
 	if (access(split_cmd[0], X_OK) == 0)
 		return (free_split(split_cmd), 1);

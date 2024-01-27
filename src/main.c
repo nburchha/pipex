@@ -6,7 +6,7 @@
 /*   By: nburchha <nburchha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/07 18:44:26 by nburchha          #+#    #+#             */
-/*   Updated: 2024/01/23 16:33:18 by nburchha         ###   ########.fr       */
+/*   Updated: 2024/01/27 13:43:54 by nburchha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,8 +122,6 @@ int	main(int argc, char **argv, char **envp)
 	if (check_input(argc, argv, &fd, &i) == 1)
 		return (1);
 	path = get_path(envp);
-	if (!path)
-		return (perror("Failed to get path"), 1);
 	while (argv[++i] && argv[i + 1])
 	{
 		if (is_valid_cmd(argv[i], path, fd) == 0)

@@ -1,6 +1,6 @@
 NAME = pipex
 CC = cc
-CFLAGS = -Wall -Werror -Wextra -g -fsanitize=address
+CFLAGS = -Wall -Werror -Wextra #-g -fsanitize=address
 LIB = ./libs42/libs42.a
 SRC_FILES = main.c utils.c
 OBJS = $(addprefix .obj/, $(SRC_FILES:.c=.o))
